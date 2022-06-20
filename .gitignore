@@ -1,0 +1,10 @@
+desktop.ini
+**/desktop.ini
+.idea
+.vscode
+.DS_Store
+*.pyc
+.ipynb_checkpoints
+path_editor.py
+**/telegram_users
+*.npy
