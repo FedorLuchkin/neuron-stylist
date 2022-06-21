@@ -1,4 +1,5 @@
 import asyncio
+#import queue
 import numpy as np
 import os
 import sys
@@ -8,17 +9,35 @@ from telebot import types
 import time
 import subprocess
 import path_editor
+from backend import open_queue_file as of
 
+'''
+def open_file():
+    file_open_status = 0
+    while file_open_status == 0:            
+        try:
+            queue = np.load('backend/queue.npy', allow_pickle=True).item()
+            file_open_status = 1
+        except OSError:
+            file_open_status = 0
+    return queue
+'''
 if len(sys.argv) != 2:
     print('one argument (token) expected')
 else:
     print('bot was started')
 
     token = sys.argv[1]
-
-    status_dict = np.load('frontend/users_status.npy', allow_pickle=True).item()
-    #queue = np.load('queue.npy', allow_pickle=True).item()
-    #np.save('users_status.npy', status_dict) 
+    
+    if os.path.exists('frontend/users_status.npy'):        
+        status_dict = np.load('frontend/users_status.npy', allow_pickle=True).item()
+    else:        
+        status_dict = dict()
+        np.save('frontend/users_status.npy', status_dict)
+        print('status_dict was created')
+    empty_dict = dict()
+    np.save('backend/queue.npy', empty_dict)
+    print('queue_dict was created')
 
     bot = AsyncTeleBot(token)
 
@@ -80,7 +99,16 @@ else:
                 if not style_status:
                     await bot.send_message(message.chat.id, 'Style image not found!')
             else:
-                subprocess.Popen(["python", "backend/test_sub.py", "random argv"])
+                queue_dict = of.open_file()
+                if len(queue_dict) == 0:
+                    queue_dict[user_id] = 1
+                    np.save('backend/queue.npy', queue_dict)
+                else:
+                    queue_dict[user_id] = 0
+                    np.save('backend/queue.npy', queue_dict)
+                
+                subprocess.Popen(["python", "backend/test_sub.py", user_id])
+
                 status_dict[user_id] = 'processing'
                 np.save('frontend/users_status.npy', status_dict) 
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -90,6 +118,11 @@ else:
                 await bot.send_message(message.chat.id, 'Styling was started. This will take some time...', reply_markup=markup)
         
         elif message.text == 'cancel styling ❌' and status_dict[user_id] == 'processing':
+            queue_dict = of.open_file()
+            if len(queue_dict) > 0 and user_id in queue_dict.keys():
+                queue_dict[user_id] = -1
+                np.save('backend/queue.npy', queue_dict)
+
             status_dict[user_id] = 'ready'
             np.save('frontend/users_status.npy', status_dict) 
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)        
