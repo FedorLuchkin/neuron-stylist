@@ -1,27 +1,14 @@
 import asyncio
-#import queue
 import numpy as np
 import os
 import sys
 import telebot
 from telebot.async_telebot import AsyncTeleBot
 from telebot import types
-import time
 import subprocess
 import path_editor
 from backend import open_queue_file as of
 
-'''
-def open_file():
-    file_open_status = 0
-    while file_open_status == 0:            
-        try:
-            queue = np.load('backend/queue.npy', allow_pickle=True).item()
-            file_open_status = 1
-        except OSError:
-            file_open_status = 0
-    return queue
-'''
 if len(sys.argv) != 2:
     print('one argument (token) expected')
 else:

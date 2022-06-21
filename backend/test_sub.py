@@ -1,8 +1,8 @@
 import sys
 import time
 import numpy as np
+import open_queue_file as of
 import path_editor
-from backend import open_queue_file as of
 
 if len(sys.argv) != 2:
     print('one argument expected')
