@@ -1,6 +1,7 @@
 import asyncio
 import numpy as np
 import os
+import shutil
 import sys
 import telebot
 from telebot.async_telebot import AsyncTeleBot
@@ -15,7 +16,8 @@ else:
     print('bot was started')
 
     token = sys.argv[1]
-    
+    img_num = 3
+
     if os.path.exists('frontend/users_status.npy'):        
         status_dict = np.load('frontend/users_status.npy', allow_pickle=True).item()
     else:        
@@ -29,11 +31,11 @@ else:
     bot = AsyncTeleBot(token)
 
     examples = '''
-    Image conversion examples: 
-    https://disk.yandex.ru/d/--ASEOmS5QfUuA
+Image conversion examples: 
+https://disk.yandex.ru/d/--ASEOmS5QfUuA
 
-    Video conversion examples (this feature will be added to the bot soon):
-    https://youtube.com/playlist?list=PL5MVMi3Spz2t7aC1cP4FLyjTB6vfOkUCv
+Video conversion examples (this feature will be added to the bot soon):
+https://youtube.com/playlist?list=PL5MVMi3Spz2t7aC1cP4FLyjTB6vfOkUCv
     '''
 
     @bot.message_handler(commands='start')
@@ -47,7 +49,6 @@ else:
         button2 = types.KeyboardButton('examples of stylist work')
         markup.add(button1, button2)    
         await bot.send_message(message.chat.id, "Let's start!", reply_markup=markup)
-        #await bot.send_message(message.chat.id, str(status_dict))
 
 
     @bot.message_handler(content_types=['text'])
@@ -55,6 +56,7 @@ else:
         global examples
         global instructions
         global status_dict
+        global img_num
         user_id = str(message.from_user.id)
         
         if message.text == 'get statuses' and message.chat.id == 234764423:
@@ -94,7 +96,7 @@ else:
                     queue_dict[user_id] = 0
                     np.save('backend/queue.npy', queue_dict)
                 
-                subprocess.Popen(["python", "backend/test_sub.py", user_id])
+                subprocess.Popen(["python", "backend/neuron_stylist.py", user_id])
 
                 status_dict[user_id] = 'processing'
                 np.save('frontend/users_status.npy', status_dict) 
@@ -112,6 +114,9 @@ else:
 
             status_dict[user_id] = 'ready'
             np.save('frontend/users_status.npy', status_dict) 
+            del_path = 'telegram_users/' + user_id + '/result'
+            if os.path.exists(del_path):
+                shutil.rmtree(del_path, ignore_errors=True)
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)        
             button1 = types.KeyboardButton('🟢 STYLING 🟢')
             button2 = types.KeyboardButton('Back ↩️')
@@ -119,18 +124,23 @@ else:
             await bot.send_message(message.chat.id, 'We can start styling', reply_markup=markup) 
 
         elif message.text == 'Is my picture ready?':
-            result_path = 'telegram_users/' + str(message.from_user.id) + '/result/result.png'
+            result_path = 'telegram_users/' + str(message.from_user.id) + '/result/result' + str(img_num - 1) +'.png'
             result_status = os.path.exists(result_path)
             if result_status:
                 status_dict[user_id] = 'done'
                 np.save('frontend/users_status.npy', status_dict) 
-                photo = open(result_path, 'rb')
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-                button1 = types.KeyboardButton('Back ↩️')
-                button2 = types.KeyboardButton('Back to START ↩️↩️')
-                markup.add(button1, button2)
-                await bot.send_photo(message.chat.id, photo)
+                photo_list = list()
+                for i in range(0, img_num):
+                    result_path = 'telegram_users/' + str(message.from_user.id) + '/result/result' + str(i) +'.png'
+                    photo = telebot.types.InputMediaPhoto(open(result_path, 'rb'))
+                    photo_list.append(photo)
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                button1 = types.KeyboardButton('Back to START ↩️↩️')
+                markup.add(button1)
+                await bot.send_media_group(message.chat.id, photo_list)
                 await bot.send_message(message.chat.id, 'Ready!', reply_markup=markup)
+                del_path = 'telegram_users/' + str(message.from_user.id)
+                shutil.rmtree(del_path, ignore_errors=True)
             else:
                 await bot.send_message(message.chat.id, 'Result not ready... Please wait')
 
@@ -147,15 +157,7 @@ else:
             await bot.send_message(message.chat.id, 'unknown command')
             
         if message.text == 'Back ↩️':
-            if status_dict[user_id] == 'done':
-                status_dict[user_id] = 'ready'
-                np.save('frontend/users_status.npy', status_dict) 
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)        
-                button1 = types.KeyboardButton('🟢 STYLING 🟢')
-                button2 = types.KeyboardButton('Back ↩️')
-                markup.add(button1, button2)
-                await bot.send_message(message.chat.id, 'We can start styling', reply_markup=markup)
-            elif status_dict[user_id] == 'ready':
+            if status_dict[user_id] == 'ready':
                 status_dict[user_id] = 'style'
                 np.save('frontend/users_status.npy', status_dict) 
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
@@ -177,12 +179,10 @@ else:
                 button2 = types.KeyboardButton('examples of stylist work')
                 markup.add(button1, button2)
                 await bot.send_message(message.chat.id, "Let's start!", reply_markup=markup)
-        #await bot.send_message(message.chat.id, str(status_dict))      
 
 
     @bot.message_handler(content_types=['photo'])
     async def get_user_photo(message):
-        #global status
         global status_dict
         user_id = str(message.from_user.id)
         
@@ -224,6 +224,5 @@ else:
                 await bot.send_message(message.chat.id, 'Your image was received, now send style image', reply_markup=markup)
         else:
             await bot.send_message(message.chat.id, 'You submitted an image but a button click was expected')
-        #await bot.send_message(message.chat.id, str(status_dict))
 
     asyncio.run(bot.polling(none_stop=True))

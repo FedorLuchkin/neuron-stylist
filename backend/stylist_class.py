@@ -1,8 +1,9 @@
 from torch import optim
+import open_queue_file as of
 
 class Stylist():
     
-    def __init__(self, img, epochs, loss_layers, losses, weights, targets, normalize_image, vgg):
+    def __init__(self, img, epochs, loss_layers, losses, weights, targets, normalize_image, vgg, user_id):
         super().__init__()
         self.img = img
         self.opt = optim.LBFGS([self.img])
@@ -13,20 +14,30 @@ class Stylist():
         self.targets = targets
         self.normalize_image = normalize_image
         self.vgg = vgg
+        self.user_id = user_id
         
     def step_opt(self):
-        self.opt.zero_grad() # активируем оптимизатор
-        out_layers = self.vgg(self.img, self.loss_layers) # получаем нужные слои модели
+        self.opt.zero_grad()
+        out_layers = self.vgg(self.img, self.loss_layers)
         layer_losses = []
         for j, out in enumerate(out_layers):
-            layer_losses.append(self.weights[j] * self.losses[j](out, self.targets[j])) # подсчёт ошибки на слоях
-        loss = sum(layer_losses) # суммированиме ошибок на слоях
+            layer_losses.append(self.weights[j] * self.losses[j](out, self.targets[j]))
+        loss = sum(layer_losses)
         loss.backward() 
         return loss
     
     
-    def fit(self):        
+    def fit(self):  
+        result_list = list()      
         for i in range(0, self.epochs+1):
             loss = self.opt.step(self.step_opt)
-            result_img = self.normalize_image(self.img[0])        
-        return result_img
+            result_img = self.normalize_image(self.img[0]) 
+            if i % 20 == 0:
+                result_list.append(result_img)
+            queue_dict = of.open_file()
+            good_end = True
+            if queue_dict[self.user_id] == -1:
+                good_end = False
+                print(self.user_id + ' canceled_in_fit')
+                break        
+        return result_list, good_end
