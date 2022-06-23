@@ -1,3 +1,5 @@
+import gc
+import torch
 from torch import optim
 import open_queue_file as of
 
@@ -32,12 +34,15 @@ class Stylist():
         for i in range(0, self.epochs+1):
             loss = self.opt.step(self.step_opt)
             result_img = self.normalize_image(self.img[0]) 
-            if i % 20 == 0:
+            if i != 0 and i % 20 == 0:
                 result_list.append(result_img)
             queue_dict = of.open_file()
             good_end = True
             if queue_dict[self.user_id] == -1:
                 good_end = False
                 print(self.user_id + ' canceled_in_fit')
-                break        
+                break
+        gc.collect()
+        torch.cuda.empty_cache()
+        print('CUDA CACHE WAS CLEANED!')        
         return result_list, good_end

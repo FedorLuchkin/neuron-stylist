@@ -37,6 +37,37 @@ https://disk.yandex.ru/d/--ASEOmS5QfUuA
 Video conversion examples (this feature will be added to the bot soon):
 https://youtube.com/playlist?list=PL5MVMi3Spz2t7aC1cP4FLyjTB6vfOkUCv
     '''
+    async def result_waiting(message):
+        global bot
+        global examples
+        global instructions
+        global status_dict
+        global img_num
+        user_id = str(message.from_user.id)
+        result_path = 'telegram_users/' + user_id + '/result/result' + str(img_num - 1) +'.png'
+        result_status = False
+        while not result_status and status_dict[user_id] == 'processing':
+            result_status = os.path.exists(result_path)
+            await asyncio.sleep(5)
+
+        if result_status and status_dict[user_id] == 'processing':
+                status_dict[user_id] = 'done'
+                np.save('frontend/users_status.npy', status_dict) 
+                photo_list = list()
+                for i in range(0, img_num):
+                    result_path = 'telegram_users/' + str(message.from_user.id) + '/result/result' + str(i) +'.png'
+                    photo = telebot.types.InputMediaPhoto(open(result_path, 'rb'))
+                    photo_list.append(photo) 
+                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+                button1 = types.KeyboardButton('Back to START ↩️↩️')
+                markup.add(button1)
+                await bot.send_media_group(message.chat.id, photo_list)
+                await bot.send_message(message.chat.id, 'Ready!', reply_markup=markup)
+                del_path = 'telegram_users/' + str(message.from_user.id)
+                if os.path.exists(del_path):
+                    shutil.rmtree(del_path, ignore_errors=True)
+
+        
 
     @bot.message_handler(commands='start')
     async def start(message):
@@ -59,9 +90,14 @@ https://youtube.com/playlist?list=PL5MVMi3Spz2t7aC1cP4FLyjTB6vfOkUCv
         global img_num
         user_id = str(message.from_user.id)
         
-        if message.text == 'get statuses' and message.chat.id == 234764423:
+        if message.text == 'statuses' and message.chat.id == 'ADMIN_ID':
             await bot.send_message(message.chat.id, str(status_dict))
-        
+
+        elif message.text == 'queue' and message.chat.id == 'ADMIN_ID':
+            if os.path.exists('backend/queue.npy'):
+                queue_dict = of.open_file()
+                await bot.send_message(message.chat.id, str(queue_dict))
+
         elif status_dict[user_id] == 'content' or status_dict[user_id] == 'style':
             if message.text != 'Back ↩️':        
                 await bot.send_message(message.chat.id, 'This is not an image')
@@ -75,9 +111,12 @@ https://youtube.com/playlist?list=PL5MVMi3Spz2t7aC1cP4FLyjTB6vfOkUCv
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
             button1 = types.KeyboardButton('Back ↩️')
             markup.add(button1)        
-            await bot.send_message(message.chat.id, 'Send a image you want to change', reply_markup=markup)        
+            await bot.send_message(message.chat.id, 'Send the image you want to change', reply_markup=markup)        
             
         elif message.text == '🟢 STYLING 🟢': 
+            del_path = 'telegram_users/' + user_id + '/result'
+            if os.path.exists(del_path):
+                shutil.rmtree(del_path, ignore_errors=True)
             content_path = 'telegram_users/' + str(message.from_user.id) + '/content/content.png'
             style_path = 'telegram_users/' + str(message.from_user.id) + '/style/style.png'
             content_status = os.path.exists(content_path)
@@ -100,10 +139,12 @@ https://youtube.com/playlist?list=PL5MVMi3Spz2t7aC1cP4FLyjTB6vfOkUCv
 
                 status_dict[user_id] = 'processing'
                 np.save('frontend/users_status.npy', status_dict) 
+
+                future = asyncio.ensure_future(result_waiting(message))
+
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-                button1 = types.KeyboardButton('Is my picture ready?')
-                button2 = types.KeyboardButton('cancel styling ❌')
-                markup.add(button1, button2)
+                button1 = types.KeyboardButton('cancel styling ❌')
+                markup.add(button1)
                 await bot.send_message(message.chat.id, 'Styling was started. This will take some time...', reply_markup=markup)
         
         elif message.text == 'cancel styling ❌' and status_dict[user_id] == 'processing':
@@ -121,28 +162,7 @@ https://youtube.com/playlist?list=PL5MVMi3Spz2t7aC1cP4FLyjTB6vfOkUCv
             button1 = types.KeyboardButton('🟢 STYLING 🟢')
             button2 = types.KeyboardButton('Back ↩️')
             markup.add(button1, button2)
-            await bot.send_message(message.chat.id, 'We can start styling', reply_markup=markup) 
-
-        elif message.text == 'Is my picture ready?':
-            result_path = 'telegram_users/' + str(message.from_user.id) + '/result/result' + str(img_num - 1) +'.png'
-            result_status = os.path.exists(result_path)
-            if result_status:
-                status_dict[user_id] = 'done'
-                np.save('frontend/users_status.npy', status_dict) 
-                photo_list = list()
-                for i in range(0, img_num):
-                    result_path = 'telegram_users/' + str(message.from_user.id) + '/result/result' + str(i) +'.png'
-                    photo = telebot.types.InputMediaPhoto(open(result_path, 'rb'))
-                    photo_list.append(photo)
-                markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-                button1 = types.KeyboardButton('Back to START ↩️↩️')
-                markup.add(button1)
-                await bot.send_media_group(message.chat.id, photo_list)
-                await bot.send_message(message.chat.id, 'Ready!', reply_markup=markup)
-                del_path = 'telegram_users/' + str(message.from_user.id)
-                shutil.rmtree(del_path, ignore_errors=True)
-            else:
-                await bot.send_message(message.chat.id, 'Result not ready... Please wait')
+            await bot.send_message(message.chat.id, 'We can start styling', reply_markup=markup)
 
         elif message.text == 'Back to START ↩️↩️':
             status_dict[user_id] = 'beginning'
@@ -170,7 +190,7 @@ https://youtube.com/playlist?list=PL5MVMi3Spz2t7aC1cP4FLyjTB6vfOkUCv
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
                 button1 = types.KeyboardButton('Back ↩️')
                 markup.add(button1)
-                await bot.send_message(message.chat.id, 'Send a image you want to change', reply_markup=markup)
+                await bot.send_message(message.chat.id, 'Send the image you want to change', reply_markup=markup)
             elif status_dict[user_id] == 'content':
                 status_dict[user_id] = 'beginning'
                 np.save('frontend/users_status.npy', status_dict) 

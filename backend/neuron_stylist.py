@@ -1,3 +1,4 @@
+import gc
 import numpy as np
 import os
 from PIL import Image
@@ -79,6 +80,10 @@ else:
                 result_path = 'telegram_users/' + user_id + '/result/result' + str(i) +'.png'
                 result[i].save(result_path)
         print(user_id + ' ' + str(datetime.now() - start_time))
+
+        gc.collect()
+        torch.cuda.empty_cache()
+        #print('CUDA CACHE WAS CLEANED!')
 
         queue_dict = of.open_file()
         if user_id in queue_dict.keys():
