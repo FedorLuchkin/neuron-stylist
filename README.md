@@ -5,7 +5,7 @@
 > 1. Clone repository
 > 2. Open repository directory in console
 > 3. Run: ```python run.py [Token]```
-___
+
 ## Examples of stylist work
 > - [Images](https://disk.yandex.ru/d/--ASEOmS5QfUuA)
 > - [Video](https://youtube.com/playlist?list=PL5MVMi3Spz2t7aC1cP4FLyjTB6vfOkUCv)
