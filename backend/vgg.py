@@ -1,6 +1,7 @@
 import torch.nn as nn
 import torch.nn.functional as F
 
+
 class VGG16(nn.Module):
     def __init__(self, pool='max'):
         super().__init__()
@@ -32,7 +33,7 @@ class VGG16(nn.Module):
             self.pool3 = nn.AvgPool2d(kernel_size=2, stride=2)
             self.pool4 = nn.AvgPool2d(kernel_size=2, stride=2)
             self.pool5 = nn.AvgPool2d(kernel_size=2, stride=2)
-            
+
     def forward(self, x, layers):
         out = {}
         out['relu1_1'] = F.relu(self.conv1_1(x))

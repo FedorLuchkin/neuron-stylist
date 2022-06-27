@@ -5,20 +5,21 @@ from torch.autograd import Variable
 
 def get_img_functions(size, chanels):    
     to_mean_tensor = transforms.Compose([transforms.Resize(size),   
-                               transforms.ToTensor(),
-                               transforms.Lambda(lambda x: x[torch.LongTensor(chanels)]),     
-                               transforms.Normalize(mean=[0.40760392, 0.45795686, 0.48501961],   
-                                                    std=[1,1,1]),
-                               transforms.Lambda(lambda x: x.mul_(255)),
-                              ])
+                                         transforms.ToTensor(),
+                                         transforms.Lambda(lambda x: x[torch.LongTensor(chanels)]),     
+                                         transforms.Normalize(mean=[0.40760392, 0.45795686, 0.48501961],   
+                                                              std=[1, 1, 1]),
+                                         transforms.Lambda(lambda x: x.mul_(255)),
+                                         ])
 
     to_unmean_tensor = transforms.Compose([transforms.Lambda(lambda x: x.div(255)),
-                                            transforms.Normalize(mean=[-0.40760392, -0.45795686, -0.48501961],  
-                                                    std=[1,1,1]),
-                                            transforms.Lambda(lambda x: x[torch.LongTensor(chanels)]), 
-                              ])
+                                           transforms.Normalize(mean=[-0.40760392, -0.45795686, -0.48501961],  
+                                                                std=[1,1,1]),
+                                           transforms.Lambda(lambda x: x[torch.LongTensor(chanels)]), 
+                                           ])
     to_image = transforms.Compose([transforms.ToPILImage()])
-    normalize_image = lambda t: to_image(torch.clamp(to_unmean_tensor(t), min=0, max=1))
+    def normalize_image(t): return to_image(
+        torch.clamp(to_unmean_tensor(t), min=0, max=1))
     return(to_mean_tensor, normalize_image)
 
 
