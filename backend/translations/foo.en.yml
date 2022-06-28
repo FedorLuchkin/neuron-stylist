@@ -1,0 +1,27 @@
+en:
+  examples: |
+    Image conversion examples:
+    https://disk.yandex.ru/d/--ASEOmS5QfUuA
+
+    Video conversion examples (this feature will
+    be added to the bot soon):
+    https://youtube.com/playlist?list=PL5MVMi3Spz2t7aC1cP4FLyjTB6vfOkUCv
+
+  start: START
+  examples_button: examples of stylist work
+  ready: Ready!
+  start_message: Let's start!
+  back: Back ↩️
+  not_image: This is not an image
+  send_content: Send the image you want to change
+  saved_content: Your image was received, now send style image
+  saved_style: Your style image was received, now we can start styling
+  send_style: Send style image
+  styling: 🟢 STYLING 🟢
+  content_not_found: Content image not found!
+  style_not_found: Style image not found!
+  cancel: cancel styling ❌
+  can_start: We can start styling
+  unknown: unknown command
+  press_button: You submitted an image but a button click was expected
+  wait: Styling was started. This will take some time...

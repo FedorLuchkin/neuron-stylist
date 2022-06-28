@@ -4,6 +4,7 @@ from stylist_class import Stylist
 import stylist_params as sp
 import img_functions as imf
 
+
 def get_result(
     user,
     vgg,
@@ -36,7 +37,6 @@ def get_result(
     model = None
     gc.collect()
     torch.cuda.empty_cache()
-    #print('CUDA CACHE WAS CLEANED!')
     for el in result_list:
         if difference != -1:
             el = el.resize((size[1] + difference, size[0] + difference))

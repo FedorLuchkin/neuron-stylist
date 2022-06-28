@@ -3,6 +3,7 @@ import torch
 from torch import optim
 import open_queue_file as of
 
+
 class Stylist():
     
     def __init__(self, img, epochs, loss_layers, losses, weights, targets, normalize_image, vgg, user_id):
@@ -26,8 +27,7 @@ class Stylist():
             layer_losses.append(self.weights[j] * self.losses[j](out, self.targets[j]))
         loss = sum(layer_losses)
         loss.backward() 
-        return loss
-    
+        return loss    
     
     def fit(self):  
         result_list = list()      
@@ -44,5 +44,5 @@ class Stylist():
                 break
         gc.collect()
         torch.cuda.empty_cache()
-        print('CUDA CACHE WAS CLEANED!')        
+        print('CUDA CACHE WAS CLEANED!')
         return result_list, good_end

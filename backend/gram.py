@@ -3,6 +3,7 @@ import torch.nn as nn
 
 
 class GramMatrix(nn.Module):
+
     def forward(self, input):
         b, c, h, w = input.size()
         F = input.view(b, c, h * w)
@@ -12,6 +13,7 @@ class GramMatrix(nn.Module):
 
 
 class GramMSELoss(nn.Module):
+    
     def forward(self, input, target):
         out = nn.MSELoss()(GramMatrix()(input), target)
         return out

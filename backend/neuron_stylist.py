@@ -11,6 +11,7 @@ import open_queue_file as of
 import path_editor
 from datetime import datetime
 
+
 if len(sys.argv) != 2:
     print('one argument expected')
 else:
@@ -66,7 +67,6 @@ else:
                 width -= diff
                 height -= diff
 
-        # get_result(vgg, imgs, size = (1024, 1024), difference = 0, chanels = [0,1,2], epochs = 5)
         SIZE_IMAGE = (height, width)
         epoch_number = 60
 
@@ -86,7 +86,6 @@ else:
 
         gc.collect()
         torch.cuda.empty_cache()
-        #print('CUDA CACHE WAS CLEANED!')
 
         queue_dict = of.open_file()
         if user_id in queue_dict.keys():
@@ -101,5 +100,3 @@ else:
         np.save('backend/queue.npy', queue_dict)
 
     print(user_id + ' finished')
-
-    
