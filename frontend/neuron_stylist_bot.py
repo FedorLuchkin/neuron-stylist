@@ -1,5 +1,4 @@
 import asyncio
-import i18n
 import numpy as np
 import os
 import shutil
@@ -10,6 +9,7 @@ from telebot import types
 import subprocess
 import path_editor
 from backend import open_queue_file as of
+from backend.translations import translate as t
 
 if len(sys.argv) != 2:
     print('one argument (token) expected')
@@ -17,7 +17,6 @@ else:
     print('bot was started')
     token = sys.argv[1]
     img_num = 3
-    i18n.load_path.append('backend/translations')    
     user_status_path = 'frontend/users_status.npy'
     queue_path = 'backend/queue.npy'
     language_path = 'backend/translations/users_language.npy'
@@ -52,12 +51,6 @@ else:
         global user_status_path
 
         user_id = str(message.from_user.id)
-        i18n.set('locale', language_dict[user_id])
-        start = i18n.t('foo.start')
-        examples_button = i18n.t('foo.examples_button')
-        back = i18n.t('foo.back')
-        ready = i18n.t('foo.ready')
-
         result_path = 'telegram_users/' + user_id + \
             '/result/result' + str(img_num - 1) +'.png'
         result_status = False
@@ -74,9 +67,9 @@ else:
                 photo_list.append(photo)
 
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-            button1 = types.KeyboardButton(start)
-            button2 = types.KeyboardButton(examples_button)
-            button3 = types.KeyboardButton(back)
+            button1 = types.KeyboardButton(t.translate(language_dict[user_id], 'start'))
+            button2 = types.KeyboardButton(t.translate(language_dict[user_id], 'examples_button'))
+            button3 = types.KeyboardButton(t.translate(language_dict[user_id], 'back'))
             markup.add(button1, button2, button3)
 
             result_path = 'telegram_users/' + str(message.from_user.id) + '/result'
@@ -88,7 +81,7 @@ else:
                 del_path = 'telegram_users/' + str(message.from_user.id)
                 if os.path.exists(del_path):
                     shutil.rmtree(del_path, ignore_errors=True)
-            await bot.send_message(message.chat.id, ready, reply_markup=markup)
+            await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'ready'), reply_markup=markup)
         
 
     @bot.message_handler(commands='start')
@@ -122,64 +115,44 @@ else:
             language_dict[user_id] = message.text
             np.save(language_path, language_dict)
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-            i18n.set('locale', language_dict[user_id])
-            start = i18n.t('foo.start')
-            examples_button = i18n.t('foo.examples_button')
-            start_message = i18n.t('foo.start_message') 
-            back = i18n.t('foo.back')           
-            button1 = types.KeyboardButton(start)
-            button2 = types.KeyboardButton(examples_button)
-            button3 = types.KeyboardButton(back)
+
+                       
+            button1 = types.KeyboardButton(t.translate(language_dict[user_id], 'start'))
+            button2 = types.KeyboardButton(t.translate(language_dict[user_id], 'examples_button'))
+            button3 = types.KeyboardButton(t.translate(language_dict[user_id], 'back'))
             markup.add(button1, button2, button3)
-            await bot.send_message(message.chat.id, start_message, reply_markup=markup)
+            await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'start_message'), reply_markup=markup)
             status_dict[user_id] = 'beginning'
             np.save(user_status_path, status_dict)
         
-        i18n.set('locale', language_dict[user_id])
-        back = i18n.t('foo.back')
-        not_image = i18n.t('foo.not_image')
-        examples_button = i18n.t('foo.examples_button')
-        examples = i18n.t('foo.examples')
-        start = i18n.t('foo.start')
-        send_content = i18n.t('foo.send_content')
-        styling = i18n.t('foo.styling')
-        content_not_found = i18n.t('foo.content_not_found')
-        style_not_found = i18n.t('foo.style_not_found')
-        cancel = i18n.t('foo.cancel')
-        wait = i18n.t('foo.wait')
-        can_start = i18n.t('foo.can_start')
-        unknown = i18n.t('foo.unknown')
-        send_style = i18n.t('foo.send_style')
-        send_content = i18n.t('foo.send_content')
-        start_message = i18n.t('foo.start_message')
 
-        if message.text == 'statuses' and message.chat.id == 'ADMIN_ID':
+        if message.text == 'statuses' and message.chat.id == 234764423:
             await bot.send_message(message.chat.id, str(status_dict))
 
-        if message.text == 'languages' and message.chat.id == 'ADMIN_ID':
+        elif message.text == 'languages' and message.chat.id == 234764423:
             await bot.send_message(message.chat.id, str(language_dict))
 
-        elif message.text == 'queue' and message.chat.id == 'ADMIN_ID':
+        elif message.text == 'queue' and message.chat.id == 234764423:
             if os.path.exists(queue_path):
                 queue_dict = of.open_file()
                 await bot.send_message(message.chat.id, str(queue_dict))
 
         elif status_dict[user_id] == 'content' or status_dict[user_id] == 'style':
-            if message.text != back:
-                await bot.send_message(message.chat.id, not_image)
+            if message.text != t.translate(language_dict[user_id], 'back'):
+                await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'not_image'))
                 
-        elif message.text == examples_button:
-            await bot.send_message(message.chat.id, examples)
+        elif message.text == t.translate(language_dict[user_id], 'examples_button'):
+            await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'examples'))
             
-        elif message.text == start:
+        elif message.text == t.translate(language_dict[user_id], 'start'):
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-            button1 = types.KeyboardButton(back)
+            button1 = types.KeyboardButton(t.translate(language_dict[user_id], 'back'))
             markup.add(button1)
-            await bot.send_message(message.chat.id, send_content, reply_markup=markup)
+            await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'send_content'), reply_markup=markup)
             status_dict[user_id] = 'content'
             np.save(user_status_path, status_dict)
             
-        elif message.text == styling:
+        elif message.text == t.translate(language_dict[user_id], 'styling'):
             del_path = 'telegram_users/' + user_id + '/result'
             if os.path.exists(del_path):
                 shutil.rmtree(del_path, ignore_errors=True)
@@ -191,9 +164,9 @@ else:
             style_status = os.path.exists(style_path)
             if not (content_status and style_status):
                 if not content_status:
-                    await bot.send_message(message.chat.id, content_not_found)
+                    await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'content_not_found'))
                 if not style_status:
-                    await bot.send_message(message.chat.id, style_not_found)
+                    await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'style_not_found'))
             else:
                 queue_dict = of.open_file()
                 queue_keys = list(queue_dict.keys())
@@ -213,11 +186,11 @@ else:
                 future = asyncio.ensure_future(result_waiting(message))
 
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-                button1 = types.KeyboardButton(cancel)
+                button1 = types.KeyboardButton(t.translate(language_dict[user_id], 'cancel'))
                 markup.add(button1)
-                await bot.send_message(message.chat.id, wait, reply_markup=markup)
+                await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'wait'), reply_markup=markup)
 
-        elif message.text == cancel and status_dict[user_id] == 'processing':
+        elif message.text == t.translate(language_dict[user_id], 'cancel') and status_dict[user_id] == 'processing':
             queue_dict = of.open_file()
             if len(queue_dict) > 0 and user_id in queue_dict.keys():
                 queue_dict[user_id] = -1
@@ -228,41 +201,41 @@ else:
                 shutil.rmtree(del_path, ignore_errors=True)
             markup = types.ReplyKeyboardMarkup(
                 resize_keyboard=True, row_width=1)        
-            button1 = types.KeyboardButton(styling)
-            button2 = types.KeyboardButton(back)
+            button1 = types.KeyboardButton(t.translate(language_dict[user_id], 'styling'))
+            button2 = types.KeyboardButton(t.translate(language_dict[user_id], 'back'))
             markup.add(button1, button2)
-            await bot.send_message(message.chat.id, can_start, reply_markup=markup)
+            await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'can_start'), reply_markup=markup)
             status_dict[user_id] = 'ready'
             np.save(user_status_path, status_dict)
 
-        elif message.text != back and message.text != 'en' and message.text != 'ru':
-            await bot.send_message(message.chat.id, unknown)
+        elif message.text != t.translate(language_dict[user_id], 'back') and message.text != 'en' and message.text != 'ru':
+            await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'unknown'))
 
-        if message.text == back:
+        if message.text == t.translate(language_dict[user_id], 'back'):
             if status_dict[user_id] == 'ready':
                 markup = types.ReplyKeyboardMarkup(
                     resize_keyboard=True, row_width=1)
-                button1 = types.KeyboardButton(back)
+                button1 = types.KeyboardButton(t.translate(language_dict[user_id], 'back'))
                 markup.add(button1)
-                await bot.send_message(message.chat.id, send_style, reply_markup=markup)
+                await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'send_style'), reply_markup=markup)
                 status_dict[user_id] = 'style'
                 np.save(user_status_path, status_dict)
             elif status_dict[user_id] == 'style':                 
                 markup = types.ReplyKeyboardMarkup(
                     resize_keyboard=True, row_width=1)
-                button1 = types.KeyboardButton(back)
+                button1 = types.KeyboardButton(t.translate(language_dict[user_id], 'back'))
                 markup.add(button1)
-                await bot.send_message(message.chat.id, send_content, reply_markup=markup)
+                await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'send_content'), reply_markup=markup)
                 status_dict[user_id] = 'content'
                 np.save(user_status_path, status_dict)
             elif status_dict[user_id] == 'content':  
                 markup = types.ReplyKeyboardMarkup(
                     resize_keyboard=True, row_width=1)
-                button1 = types.KeyboardButton(start)
-                button2 = types.KeyboardButton(examples_button)
-                button3 = types.KeyboardButton(back)
+                button1 = types.KeyboardButton(t.translate(language_dict[user_id], 'start'))
+                button2 = types.KeyboardButton(t.translate(language_dict[user_id], 'examples_button'))
+                button3 = types.KeyboardButton(t.translate(language_dict[user_id], 'back'))
                 markup.add(button1, button2, button3)
-                await bot.send_message(message.chat.id, start_message, reply_markup=markup)
+                await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'start_message'), reply_markup=markup)
                 status_dict[user_id] = 'beginning'
                 np.save(user_status_path, status_dict)
             elif status_dict[user_id] == 'beginning':  
@@ -282,12 +255,6 @@ else:
         global user_status_path
 
         user_id = str(message.from_user.id)
-        i18n.set('locale', language_dict[user_id])
-        styling = i18n.t('foo.styling')
-        back = i18n.t('foo.back')
-        saved_style = i18n.t('foo.saved_style')
-        saved_content = i18n.t('foo.saved_content')
-        press_button = i18n.t('foo.press_button')
 
         if status_dict[user_id] == 'content' or status_dict[user_id] == 'style':
             os.makedirs('telegram_users', exist_ok=True)
@@ -312,22 +279,22 @@ else:
             if status_dict[user_id] == 'style':         
                 markup = types.ReplyKeyboardMarkup(
                     resize_keyboard=True, row_width=1)        
-                button1 = types.KeyboardButton(styling)
-                button2 = types.KeyboardButton(back)
+                button1 = types.KeyboardButton(t.translate(language_dict[user_id], 'styling'))
+                button2 = types.KeyboardButton(t.translate(language_dict[user_id], 'back'))
                 markup.add(button1, button2)
-                await bot.send_message(message.chat.id, saved_style, reply_markup=markup)
+                await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'saved_style'), reply_markup=markup)
                 status_dict[user_id] = 'ready'
                 np.save(user_status_path, status_dict)
 
             if status_dict[user_id] == 'content':
                 markup = types.ReplyKeyboardMarkup(
                     resize_keyboard=True, row_width=1)
-                button1 = types.KeyboardButton(back)
+                button1 = types.KeyboardButton(t.translate(language_dict[user_id], 'back'))
                 markup.add(button1)
-                await bot.send_message(message.chat.id, saved_content, reply_markup=markup)
+                await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'saved_content'), reply_markup=markup)
                 status_dict[user_id] = 'style'
                 np.save(user_status_path, status_dict) 
         else:
-            await bot.send_message(message.chat.id, press_button)
+            await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'press_button'))
 
     asyncio.run(bot.polling(none_stop=True))
