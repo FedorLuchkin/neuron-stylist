@@ -11,6 +11,7 @@ import open_queue_file as of
 import path_editor
 from datetime import datetime
 
+
 if len(sys.argv) != 2:
     print('one argument expected')
 else:
@@ -21,10 +22,10 @@ else:
         print(user_id + ' are waiting')
 
     while queue_dict[user_id] == 0:
-        queue_dict = of.open_file()        
+        queue_dict = of.open_file()
         time.sleep(2)
 
-    if  queue_dict[user_id] == -1:   
+    if queue_dict[user_id] == -1:
         print(user_id + ' canceled_before_start')
         queue_dict = of.open_file()
         if user_id in queue_dict.keys():
@@ -34,13 +35,13 @@ else:
     elif queue_dict[user_id] == 1:
         print(user_id + ' started')
 
-        vgg_model  = VGG16()
+        vgg_model = VGG16()
         vgg_model.load_state_dict(torch.load('backend/vgg_conv.pth'))
 
         for param in vgg_model.parameters():
             param.requires_grad = False
 
-        if torch.cuda.is_available():    
+        if torch.cuda.is_available():
             vgg_model.cuda()
 
         content_path = 'telegram_users/' + user_id + '/content/content.png'
@@ -57,7 +58,7 @@ else:
                 diff = -1
                 width = int(width / 2)
                 height = int(height / 2)
-                
+ 
             else:
                 if width > height:
                     diff = width - 1024
@@ -66,24 +67,25 @@ else:
                 width -= diff
                 height -= diff
 
-        # get_result(vgg, imgs, size = (1024, 1024), difference = 0, chanels = [0,1,2], epochs = 5)
         SIZE_IMAGE = (height, width)
         epoch_number = 60
 
         start_time = datetime.now()
         # chanels = [2,1,0]
-        result, good_end = sr.get_result(vgg = vgg_model, imgs = images, size = SIZE_IMAGE, difference = diff, chanels = [0,2,1], epochs = epoch_number, user = user_id)
+        result, good_end = sr.get_result(
+            vgg=vgg_model, imgs=images, size=SIZE_IMAGE, difference=diff, chanels=[
+                0,2,1], epochs=epoch_number, user=user_id)
         if good_end:
             result_path = 'telegram_users/' + user_id + '/result'
             os.makedirs(result_path, exist_ok=True)
-            for i in range(0, len(result)):            
-                result_path = 'telegram_users/' + user_id + '/result/result' + str(i) +'.png'
+            for i in range(0, len(result)):
+                result_path = 'telegram_users/' + user_id + \
+                    '/result/result' + str(i) +'.png'
                 result[i].save(result_path)
         print(user_id + ' ' + str(datetime.now() - start_time))
 
         gc.collect()
         torch.cuda.empty_cache()
-        #print('CUDA CACHE WAS CLEANED!')
 
         queue_dict = of.open_file()
         if user_id in queue_dict.keys():
@@ -95,7 +97,6 @@ else:
             key = list(queue_dict.keys())[0]
             if queue_dict[key] == 0:
                 queue_dict[key] = 1
-        np.save('backend/queue.npy', queue_dict)        
+        np.save('backend/queue.npy', queue_dict)
 
     print(user_id + ' finished')
-    

@@ -15,7 +15,8 @@ sys.path.append(r"{path}")
 filenames = [
     'path_editor.py',
     path + '\\frontend\\path_editor.py',
-    path + '\\backend\\path_editor.py'
+    path + '\\backend\\path_editor.py',
+    path + '\\backend\\translations\\path_editor.py'
 ]
 
 for filename in filenames:
