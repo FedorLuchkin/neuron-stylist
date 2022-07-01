@@ -126,13 +126,13 @@ else:
             np.save(user_status_path, status_dict)
         
 
-        if message.text == 'statuses' and message.chat.id == 234764423:
+        if message.text == 'statuses' and message.chat.id == 'ADMIN_ID':
             await bot.send_message(message.chat.id, str(status_dict))
 
-        elif message.text == 'languages' and message.chat.id == 234764423:
+        elif message.text == 'languages' and message.chat.id == 'ADMIN_ID':
             await bot.send_message(message.chat.id, str(language_dict))
 
-        elif message.text == 'queue' and message.chat.id == 234764423:
+        elif message.text == 'queue' and message.chat.id == 'ADMIN_ID':
             if os.path.exists(queue_path):
                 queue_dict = of.open_file()
                 await bot.send_message(message.chat.id, str(queue_dict))
