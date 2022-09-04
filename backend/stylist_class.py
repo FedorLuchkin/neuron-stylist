@@ -44,5 +44,4 @@ class Stylist():
                 break
         gc.collect()
         torch.cuda.empty_cache()
-        print('CUDA CACHE WAS CLEANED!')
         return result_list, good_end
