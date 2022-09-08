@@ -19,21 +19,21 @@ else:
 
     queue_dict = of.open_file()
     if queue_dict[user_id] == 0:
-        print(user_id + ' are waiting')
+        print(user_id + ' are waiting ' + str(datetime.now()))
 
     while queue_dict[user_id] == 0:
         queue_dict = of.open_file()
         time.sleep(2)
 
     if queue_dict[user_id] == -1:
-        print(user_id + ' canceled_before_start')
+        print(user_id + ' canceled_before_start ' + str(datetime.now()))
         queue_dict = of.open_file()
         if user_id in queue_dict.keys():
             del queue_dict[user_id]
             np.save('backend/queue.npy', queue_dict)
 
     elif queue_dict[user_id] == 1:
-        print(user_id + ' started')
+        print(user_id + ' started ' + str(datetime.now()))
 
         vgg_model = VGG16()
         vgg_model.load_state_dict(torch.load('backend/vgg_conv.pth'))
@@ -82,7 +82,7 @@ else:
                 result_path = 'telegram_users/' + user_id + \
                     '/result/result' + str(i) +'.png'
                 result[i].save(result_path)
-        print(user_id + ' ' + str(datetime.now() - start_time))
+        print(user_id + ' styling time ' + str(datetime.now() - start_time))
 
         gc.collect()
         torch.cuda.empty_cache()
@@ -99,4 +99,4 @@ else:
                 queue_dict[key] = 1
         np.save('backend/queue.npy', queue_dict)
 
-    print(user_id + ' finished')
+    print(user_id + ' finished ' + str(datetime.now()))

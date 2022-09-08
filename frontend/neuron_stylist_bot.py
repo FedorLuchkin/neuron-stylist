@@ -297,4 +297,4 @@ else:
         else:
             await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'press_button'))
 
-    asyncio.run(bot.polling(none_stop=True, interval=1))
+    asyncio.run(bot.polling(none_stop=True, interval=2))

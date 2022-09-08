@@ -1,3 +1,4 @@
+from datetime import datetime
 import gc
 import torch
 from torch import optim
@@ -40,7 +41,7 @@ class Stylist():
             good_end = True
             if queue_dict[self.user_id] == -1:
                 good_end = False
-                print(self.user_id + ' canceled_in_fit')
+                print(self.user_id + ' canceled_in_fit ' + str(datetime.now()))
                 break
         gc.collect()
         torch.cuda.empty_cache()
