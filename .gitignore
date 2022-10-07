@@ -9,3 +9,4 @@ path_editor.py
 vgg_conv.pth
 **/telegram_users
 *.npy
+*.log

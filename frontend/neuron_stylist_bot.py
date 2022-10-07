@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import numpy as np
 import os
 import shutil
@@ -9,35 +10,37 @@ from telebot import types
 import subprocess
 import path_editor
 from backend import open_queue_file as of
-from backend.translations import translate as t
+from frontend.translations import translate as t
+
+logging.basicConfig(filename='sessions.log', encoding='utf-8', level=logging.DEBUG)
 
 if len(sys.argv) != 2:
-    print('one argument (token) expected')
+    logging.error('one argument (token) expected')
 else:
-    print('bot was started')
+    logging.debug('bot was started')
     token = sys.argv[1]
     img_num = 3
-    user_status_path = 'frontend/users_status.npy'
+    user_status_path = 'backend/users_status.npy'
     queue_path = 'backend/queue.npy'
-    language_path = 'backend/translations/users_language.npy'
+    language_path = 'frontend/translations/users_language.npy'
 
     if os.path.exists(user_status_path):
         status_dict = np.load(user_status_path, allow_pickle=True).item()
     else:        
         status_dict = dict()
         np.save(user_status_path, status_dict)
-        print('status_dict was created')
+        logging.debug('status_dict was created')
 
     if os.path.exists(language_path):
         language_dict = np.load(language_path, allow_pickle=True).item()
     else:        
         language_dict = dict()
         np.save(language_path, language_dict)
-        print('language_dict was created')
+        logging.debug('language_dict was created')
 
     empty_dict = dict()
     np.save(queue_path, empty_dict)
-    print('queue_dict was created')
+    logging.debug('queue_dict was created')
 
     bot = AsyncTeleBot(token)
 
@@ -126,13 +129,13 @@ else:
             np.save(user_status_path, status_dict)
         
 
-        if message.text == 'statuses' and message.chat.id == 'ADMIN_ID':
+        if message.text == 'statuses' and message.chat.id == 234764423:
             await bot.send_message(message.chat.id, str(status_dict))
 
-        elif message.text == 'languages' and message.chat.id == 'ADMIN_ID':
+        elif message.text == 'languages' and message.chat.id == 234764423:
             await bot.send_message(message.chat.id, str(language_dict))
 
-        elif message.text == 'queue' and message.chat.id == 'ADMIN_ID':
+        elif message.text == 'queue' and message.chat.id == 234764423:
             if os.path.exists(queue_path):
                 queue_dict = of.open_file()
                 await bot.send_message(message.chat.id, str(queue_dict))

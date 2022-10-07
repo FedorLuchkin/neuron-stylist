@@ -1,9 +1,11 @@
 from datetime import datetime
 import gc
+import logging
 import torch
 from torch import optim
 import open_queue_file as of
 
+logging.basicConfig(filename='sessions.log', encoding='utf-8', level=logging.DEBUG)
 
 class Stylist():
     
@@ -41,7 +43,7 @@ class Stylist():
             good_end = True
             if queue_dict[self.user_id] == -1:
                 good_end = False
-                print(self.user_id + ' canceled_in_fit ' + str(datetime.now()))
+                logging.info({'user_id': self.user_id, 'status': 'canceled_in_fit', 'time': str(datetime.now())})
                 break
         gc.collect()
         torch.cuda.empty_cache()
