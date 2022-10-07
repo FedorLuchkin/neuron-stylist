@@ -4,7 +4,7 @@
 ## For run
 > 1. Clone repository
 > 2. Open repository directory in console
-> 3. Run: ```python run.py [Token]```
+> 3. Run: ```python run.py <Token>```
 
 ## Examples of stylist work
 > - [Images](https://disk.yandex.ru/d/--ASEOmS5QfUuA)
