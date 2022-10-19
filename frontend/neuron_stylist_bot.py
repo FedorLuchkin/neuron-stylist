@@ -7,9 +7,10 @@ import sys
 import telebot
 from telebot.async_telebot import AsyncTeleBot
 from telebot import types
-import subprocess
 import path_editor
-from backend import open_queue_file as of
+from backend import secure_file_open as of
+from backend import secure_file_save as sf
+import subprocess
 from frontend.translations import translate as t
 
 logging.basicConfig(filename='sessions.log', encoding='utf-8', level=logging.DEBUG)
@@ -25,14 +26,14 @@ else:
     language_path = 'frontend/translations/users_language.npy'
 
     if os.path.exists(user_status_path):
-        status_dict = np.load(user_status_path, allow_pickle=True).item()
+        status_dict = of.open_file(user_status_path)
     else:        
         status_dict = dict()
         np.save(user_status_path, status_dict)
         logging.debug('status_dict was created')
 
     if os.path.exists(language_path):
-        language_dict = np.load(language_path, allow_pickle=True).item()
+        language_dict = of.open_file(language_path)
     else:        
         language_dict = dict()
         np.save(language_path, language_dict)
@@ -79,7 +80,7 @@ else:
             while os.path.exists(result_path):
                 await bot.send_media_group(message.chat.id, photo_list)
                 status_dict[user_id] = 'beginning'
-                np.save(user_status_path, status_dict) 
+                sf.save_file(user_status_path, user_id, 'beginning')
 
                 del_path = 'telegram_users/' + str(message.from_user.id)
                 if os.path.exists(del_path):
@@ -100,7 +101,7 @@ else:
         markup.add(button1, button2)
         await bot.send_message(message.chat.id, 'сhoose language/выберите язык', reply_markup=markup)
         status_dict[user_id] = 'language'
-        np.save(user_status_path, status_dict) 
+        sf.save_file(user_status_path, user_id, 'language') 
 
 
     @bot.message_handler(content_types=['text'])
@@ -116,7 +117,7 @@ else:
         user_id = str(message.from_user.id)
         if status_dict[user_id] == 'language' and (message.text == 'en' or message.text == 'ru'):
             language_dict[user_id] = message.text
-            np.save(language_path, language_dict)
+            sf.save_file(language_path, user_id, message.text)
             markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
 
                        
@@ -126,7 +127,7 @@ else:
             markup.add(button1, button2, button3)
             await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'start_message'), reply_markup=markup)
             status_dict[user_id] = 'beginning'
-            np.save(user_status_path, status_dict)
+            sf.save_file(user_status_path, user_id, 'beginning')
         
 
         if message.text == 'statuses' and message.chat.id == 'ADMIN_ID':
@@ -137,7 +138,7 @@ else:
 
         elif message.text == 'queue' and message.chat.id == 'ADMIN_ID':
             if os.path.exists(queue_path):
-                queue_dict = of.open_file()
+                queue_dict = of.open_file(queue_path)
                 await bot.send_message(message.chat.id, str(queue_dict))
 
         elif status_dict[user_id] == 'content' or status_dict[user_id] == 'style':
@@ -153,7 +154,7 @@ else:
             markup.add(button1)
             await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'send_content'), reply_markup=markup)
             status_dict[user_id] = 'content'
-            np.save(user_status_path, status_dict)
+            sf.save_file(user_status_path, user_id, 'content')
             
         elif message.text == t.translate(language_dict[user_id], 'styling'):
             del_path = 'telegram_users/' + user_id + '/result'
@@ -171,20 +172,20 @@ else:
                 if not style_status:
                     await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'style_not_found'))
             else:
-                queue_dict = of.open_file()
+                queue_dict = of.open_file(queue_path)
                 queue_keys = list(queue_dict.keys())
                 if len(queue_dict) == 0 or (len(queue_keys) == 1 and queue_keys[0] == user_id):
                     queue_dict[user_id] = 1
-                    np.save(queue_path, queue_dict)
+                    sf.save_file(queue_path, user_id, 1)
                 else:
                     queue_dict[user_id] = 0
-                    np.save(queue_path, queue_dict)
+                    sf.save_file(queue_path, user_id, 0)
                 
                 subprocess.Popen(
                     ["python", "backend/neuron_stylist.py", user_id])
 
                 status_dict[user_id] = 'processing'
-                np.save(user_status_path, status_dict)
+                sf.save_file(user_status_path, user_id, 'processing')
 
                 future = asyncio.ensure_future(result_waiting(message))
 
@@ -194,10 +195,10 @@ else:
                 await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'wait'), reply_markup=markup)
 
         elif message.text == t.translate(language_dict[user_id], 'cancel') and status_dict[user_id] == 'processing':
-            queue_dict = of.open_file()
+            queue_dict = of.open_file(queue_path)
             if len(queue_dict) > 0 and user_id in queue_dict.keys():
                 queue_dict[user_id] = -1
-                np.save(queue_path, queue_dict)
+                sf.save_file(queue_path, user_id, -1)
 
             del_path = 'telegram_users/' + user_id + '/result'
             if os.path.exists(del_path):
@@ -209,7 +210,7 @@ else:
             markup.add(button1, button2)
             await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'can_start'), reply_markup=markup)
             status_dict[user_id] = 'ready'
-            np.save(user_status_path, status_dict)
+            sf.save_file(user_status_path, user_id, 'ready')
 
         elif message.text != t.translate(language_dict[user_id], 'back') and message.text != 'en' and message.text != 'ru':
             await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'unknown'))
@@ -222,7 +223,7 @@ else:
                 markup.add(button1)
                 await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'send_style'), reply_markup=markup)
                 status_dict[user_id] = 'style'
-                np.save(user_status_path, status_dict)
+                sf.save_file(user_status_path, user_id, 'style')
             elif status_dict[user_id] == 'style':                 
                 markup = types.ReplyKeyboardMarkup(
                     resize_keyboard=True, row_width=1)
@@ -230,7 +231,7 @@ else:
                 markup.add(button1)
                 await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'send_content'), reply_markup=markup)
                 status_dict[user_id] = 'content'
-                np.save(user_status_path, status_dict)
+                sf.save_file(user_status_path, user_id, 'content')
             elif status_dict[user_id] == 'content':  
                 markup = types.ReplyKeyboardMarkup(
                     resize_keyboard=True, row_width=1)
@@ -240,7 +241,7 @@ else:
                 markup.add(button1, button2, button3)
                 await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'start_message'), reply_markup=markup)
                 status_dict[user_id] = 'beginning'
-                np.save(user_status_path, status_dict)
+                sf.save_file(user_status_path, user_id, 'beginning')
             elif status_dict[user_id] == 'beginning':  
                 markup = types.ReplyKeyboardMarkup(
                     resize_keyboard=True, row_width=1)
@@ -250,7 +251,7 @@ else:
                 await bot.send_message(
                     message.chat.id, 'сhoose language/выберите язык', reply_markup=markup)
                 status_dict[user_id] = 'language'
-                np.save(user_status_path, status_dict)    
+                sf.save_file(user_status_path, user_id, 'language')    
 
     @bot.message_handler(content_types=['photo'])
     async def get_user_photo(message):
@@ -287,7 +288,7 @@ else:
                 markup.add(button1, button2)
                 await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'saved_style'), reply_markup=markup)
                 status_dict[user_id] = 'ready'
-                np.save(user_status_path, status_dict)
+                sf.save_file(user_status_path, user_id, 'ready')
 
             if status_dict[user_id] == 'content':
                 markup = types.ReplyKeyboardMarkup(
@@ -296,7 +297,7 @@ else:
                 markup.add(button1)
                 await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'saved_content'), reply_markup=markup)
                 status_dict[user_id] = 'style'
-                np.save(user_status_path, status_dict) 
+                sf.save_file(user_status_path, user_id, 'style')
         else:
             await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'press_button'))
 

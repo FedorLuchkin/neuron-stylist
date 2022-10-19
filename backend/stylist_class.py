@@ -1,9 +1,9 @@
 from datetime import datetime
 import gc
 import logging
+import secure_file_open as of
 import torch
 from torch import optim
-import open_queue_file as of
 
 logging.basicConfig(filename='sessions.log', encoding='utf-8', level=logging.DEBUG)
 
@@ -39,7 +39,7 @@ class Stylist():
             result_img = self.normalize_image(self.img[0]) 
             if i != 0 and i % 20 == 0:
                 result_list.append(result_img)
-            queue_dict = of.open_file()
+            queue_dict = of.open_file('backend/queue.npy')
             good_end = True
             if queue_dict[self.user_id] == -1:
                 good_end = False

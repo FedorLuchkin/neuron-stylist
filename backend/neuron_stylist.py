@@ -2,16 +2,18 @@ from datetime import datetime
 import gc
 import logging
 import numpy as np
-import open_queue_file as of
 import os
 import path_editor
 from PIL import Image
+import secure_file_open as of
+import secure_file_save as sf
 import stylist_result as sr
 import sys
 import time
 import torch
 from vgg import VGG16
 
+queue_path = 'backend/queue.npy'
 logging.basicConfig(filename='sessions.log', encoding='utf-8', level=logging.DEBUG)
 
 if len(sys.argv) != 2:
@@ -19,20 +21,19 @@ if len(sys.argv) != 2:
 else:
     user_id = sys.argv[1]
 
-    queue_dict = of.open_file()
+    queue_dict = of.open_file(queue_path)
     if queue_dict[user_id] == 0:
         logging.info({'user_id': user_id, 'status': 'waiting', 'time': str(datetime.now())})
 
     while queue_dict[user_id] == 0:
-        queue_dict = of.open_file()
+        queue_dict = of.open_file(queue_path)
         time.sleep(2)
 
     if queue_dict[user_id] == -1:
         logging.info({'user_id': user_id, 'status': 'canceled_before_start', 'time': str(datetime.now())})
-        queue_dict = of.open_file()
+        queue_dict = of.open_file(queue_path)
         if user_id in queue_dict.keys():
-            del queue_dict[user_id]
-            np.save('backend/queue.npy', queue_dict)
+            sf.save_file(queue_path, user_id, -1, delete=True)
 
     elif queue_dict[user_id] == 1:
         logging.info({'user_id': user_id, 'status': 'started', 'time': str(datetime.now())})
@@ -89,15 +90,14 @@ else:
         gc.collect()
         torch.cuda.empty_cache()
 
-        queue_dict = of.open_file()
+        queue_dict = of.open_file(queue_path)
         if user_id in queue_dict.keys():
-            del queue_dict[user_id]
-            np.save('backend/queue.npy', queue_dict)
+            sf.save_file(queue_path, user_id, -1, delete=True)
 
-        queue_dict = of.open_file()
+        queue_dict = of.open_file(queue_path)
         if len(queue_dict) > 0:
             key = list(queue_dict.keys())[0]
             if queue_dict[key] == 0:
                 queue_dict[key] = 1
-        np.save('backend/queue.npy', queue_dict)
+                sf.save_file(queue_path, key, 1)
     logging.info({'user_id': user_id, 'status': 'finished', 'time': str(datetime.now())})
