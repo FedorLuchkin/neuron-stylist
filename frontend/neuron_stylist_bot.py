@@ -16,9 +16,9 @@ from frontend.translations import translate as t
 logging.basicConfig(filename='sessions.log', encoding='utf-8', level=logging.DEBUG)
 
 if len(sys.argv) != 2:
-    logging.error('one argument (token) expected')
+    logging.error({'type': 'bot_starting', 'data': 'one argument (token) expected'})
 else:
-    logging.debug('bot was started')
+    logging.debug({'type': 'bot_starting', 'data': 'bot was started'})
     token = sys.argv[1]
     img_num = 3
     user_status_path = 'backend/users_status.npy'
@@ -30,18 +30,18 @@ else:
     else:        
         status_dict = dict()
         np.save(user_status_path, status_dict)
-        logging.debug('status_dict was created')
+        logging.debug({'type': 'bot_starting', 'data': 'status_dict was created'})
 
     if os.path.exists(language_path):
         language_dict = of.open_file(language_path)
     else:        
         language_dict = dict()
         np.save(language_path, language_dict)
-        logging.debug('language_dict was created')
+        logging.debug({'type': 'bot_starting', 'data': 'language_dict was created'})
 
     empty_dict = dict()
     np.save(queue_path, empty_dict)
-    logging.debug('queue_dict was created')
+    logging.debug({'type': 'bot_starting', 'data': 'queue_dict was created'})
 
     bot = AsyncTeleBot(token)
 

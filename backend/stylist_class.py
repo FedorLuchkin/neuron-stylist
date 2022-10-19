@@ -43,7 +43,7 @@ class Stylist():
             good_end = True
             if queue_dict[self.user_id] == -1:
                 good_end = False
-                logging.info({'user_id': self.user_id, 'status': 'canceled_in_fit', 'time': str(datetime.now())})
+                logging.info({'type': 'user_status', 'data': {'user_id': self.user_id, 'status': 'canceled_in_fit', 'time': str(datetime.now())}})
                 break
         gc.collect()
         torch.cuda.empty_cache()
