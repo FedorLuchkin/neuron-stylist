@@ -4,14 +4,19 @@ import torch.nn as nn
 
 
 def get_stylict_params(vgg, style_image, content_image):
-    style_layers = ['relu1_1','relu2_1','relu3_1','relu4_1', 'relu5_1']
+    style_layers = [
+                'relu1_1',
+                'relu2_1',
+                'relu3_1',
+                'relu4_1', 
+                'relu5_1']
     content_layers = ['relu4_2']
     loss_layers = style_layers + content_layers
     losses = [gr.GramMSELoss()] * len(style_layers) + \
         [nn.MSELoss()] * len(content_layers)
     if torch.cuda.is_available():
         losses = [loss.cuda() for loss in losses]
-    style_weights = [1e3/n**2 for n in [64, 128, 256, 512, 512]]
+    style_weights = [1e2/n**2 for n in [64, 128, 256, 512, 512]]
     content_weights = [1e0]
     weights = style_weights + content_weights
     style_targets = [gr.GramMatrix()(A).detach() 

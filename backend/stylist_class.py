@@ -37,7 +37,7 @@ class Stylist():
         for i in range(0, self.epochs+1):
             loss = self.opt.step(self.step_opt)
             result_img = self.normalize_image(self.img[0]) 
-            if i != 0 and i % 20 == 0:
+            if i != 0 and (i % 20 == 0 or i == 5):
                 result_list.append(result_img)
             queue_dict = of.open_file('backend/queue.npy')
             good_end = True

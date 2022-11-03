@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime
 import logging
 import numpy as np
 import os
@@ -20,7 +21,7 @@ if len(sys.argv) != 2:
 else:
     logging.debug({'type': 'bot_starting', 'data': 'bot was started'})
     token = sys.argv[1]
-    img_num = 3
+    img_num = 4
     user_status_path = 'backend/users_status.npy'
     queue_path = 'backend/queue.npy'
     language_path = 'frontend/translations/users_language.npy'
@@ -78,13 +79,16 @@ else:
 
             result_path = 'telegram_users/' + str(message.from_user.id) + '/result'
             while os.path.exists(result_path):
-                await bot.send_media_group(message.chat.id, photo_list)
-                status_dict[user_id] = 'beginning'
-                sf.save_file(user_status_path, user_id, 'beginning')
+                try:
+                    await bot.send_media_group(message.chat.id, photo_list)
+                    status_dict[user_id] = 'beginning'
+                    sf.save_file(user_status_path, user_id, 'beginning')
 
-                del_path = 'telegram_users/' + str(message.from_user.id)
-                if os.path.exists(del_path):
-                    shutil.rmtree(del_path, ignore_errors=True)
+                    del_path = 'telegram_users/' + str(message.from_user.id)
+                    if os.path.exists(del_path):
+                        shutil.rmtree(del_path, ignore_errors=True)
+                except RuntimeError:
+                    logging.error({'type': 'result_sending_try', 'data': {'user_id': user_id, 'time': str(datetime.now())}})
             await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'ready'), reply_markup=markup)
         
 

@@ -3,7 +3,7 @@ import torch.nn.functional as F
 
 
 class VGG16(nn.Module):
-    def __init__(self, pool='max'):
+    def __init__(self):
         super().__init__()
         self.conv1_1 = nn.Conv2d(3, 64, kernel_size=3, padding=1)
         self.conv1_2 = nn.Conv2d(64, 64, kernel_size=3, padding=1)
@@ -21,18 +21,11 @@ class VGG16(nn.Module):
         self.conv5_2 = nn.Conv2d(512, 512, kernel_size=3, padding=1)
         self.conv5_3 = nn.Conv2d(512, 512, kernel_size=3, padding=1)
         self.conv5_4 = nn.Conv2d(512, 512, kernel_size=3, padding=1)
-        if pool == 'max':
-            self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
-            self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
-            self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
-            self.pool4 = nn.MaxPool2d(kernel_size=2, stride=2)
-            self.pool5 = nn.MaxPool2d(kernel_size=2, stride=2)
-        elif pool == 'avg':
-            self.pool1 = nn.AvgPool2d(kernel_size=2, stride=2)
-            self.pool2 = nn.AvgPool2d(kernel_size=2, stride=2)
-            self.pool3 = nn.AvgPool2d(kernel_size=2, stride=2)
-            self.pool4 = nn.AvgPool2d(kernel_size=2, stride=2)
-            self.pool5 = nn.AvgPool2d(kernel_size=2, stride=2)
+        self.pool1 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.pool2 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.pool3 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.pool4 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.pool5 = nn.MaxPool2d(kernel_size=2, stride=2)
 
     def forward(self, x, layers):
         out = {}
