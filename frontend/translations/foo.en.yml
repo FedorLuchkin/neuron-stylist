@@ -25,3 +25,6 @@ en:
   unknown: unknown command
   press_button: You submitted an image but a button click was expected
   wait: Styling was started. This will take some time...
+  place_in_queue_button: 'Place in queue'
+  place_in_queue: 'Your place in queue: '
+  progress: 'Progress: '

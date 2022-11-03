@@ -2,13 +2,13 @@ from datetime import datetime
 import gc
 import logging
 import secure_file_open as of
+import secure_file_save as sf
 import torch
 from torch import optim
 
 logging.basicConfig(filename='sessions.log', encoding='utf-8', level=logging.DEBUG)
 
 class Stylist():
-    
     def __init__(self, img, epochs, loss_layers, losses, weights, targets, normalize_image, vgg, user_id):
         super().__init__()
         self.img = img
@@ -33,6 +33,7 @@ class Stylist():
         return loss    
     
     def fit(self):  
+        fit_progress_path = 'backend/fit_progress.npy'
         result_list = list()      
         for i in range(0, self.epochs+1):
             loss = self.opt.step(self.step_opt)
@@ -45,6 +46,8 @@ class Stylist():
                 good_end = False
                 logging.info({'type': 'user_status', 'data': {'user_id': self.user_id, 'status': 'canceled_in_fit', 'time': str(datetime.now())}})
                 break
+            sf.save_file(fit_progress_path, self.user_id, round(i / self.epochs * 100, 1))
+        sf.save_file(fit_progress_path, self.user_id, -1, delete=True)
         gc.collect()
         torch.cuda.empty_cache()
         return result_list, good_end

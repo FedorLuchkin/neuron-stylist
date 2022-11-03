@@ -25,6 +25,7 @@ else:
     user_status_path = 'backend/users_status.npy'
     queue_path = 'backend/queue.npy'
     language_path = 'frontend/translations/users_language.npy'
+    fit_progress_path = 'backend/fit_progress.npy'
 
     if os.path.exists(user_status_path):
         status_dict = of.open_file(user_status_path)
@@ -43,13 +44,14 @@ else:
     empty_dict = dict()
     np.save(queue_path, empty_dict)
     logging.debug({'type': 'bot_starting', 'data': 'queue_dict was created'})
+    np.save(fit_progress_path, empty_dict)
+    logging.debug({'type': 'bot_starting', 'data': 'fit_progress_dict was created'})
 
     bot = AsyncTeleBot(token)
 
 
     async def result_waiting(message):
         global bot
-        global instructions
         global status_dict
         global language_dict
         global img_num
@@ -110,7 +112,6 @@ else:
 
     @bot.message_handler(content_types=['text'])
     async def get_user_text(message):
-        global instructions
         global status_dict
         global language_dict
         global img_num
@@ -195,7 +196,8 @@ else:
 
                 markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
                 button1 = types.KeyboardButton(t.translate(language_dict[user_id], 'cancel'))
-                markup.add(button1)
+                button2 = types.KeyboardButton(t.translate(language_dict[user_id], 'place_in_queue_button'))
+                markup.add(button1, button2)
                 await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'wait'), reply_markup=markup)
 
         elif message.text == t.translate(language_dict[user_id], 'cancel') and status_dict[user_id] == 'processing':
@@ -215,6 +217,22 @@ else:
             await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'can_start'), reply_markup=markup)
             status_dict[user_id] = 'ready'
             sf.save_file(user_status_path, user_id, 'ready')
+
+        elif message.text == t.translate(language_dict[user_id], 'place_in_queue_button') and status_dict[user_id] == 'processing':
+            queue_dict = of.open_file(queue_path)
+            fit_progress_dict = of.open_file(fit_progress_path)
+            if len(queue_dict) > 0:                
+                try:
+                    queue_list = list(queue_dict.keys())
+                    place_in_queue = str(queue_list.index(user_id) + 1)                    
+                except ValueError:
+                    logging.error({'type': 'user_is_not_in_queue_dict', 'data': {'queue_dict': queue_dict, 'user_id': user_id}})
+                if user_id in fit_progress_dict.keys():
+                    progress = '\n' + t.translate(language_dict[user_id], 'progress') + str(of.open_file(fit_progress_path)[user_id]) + '%'                
+                else:
+                    progress = ''
+                await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'place_in_queue') + \
+                    place_in_queue + progress)
 
         elif message.text != t.translate(language_dict[user_id], 'back') and message.text != 'en' and message.text != 'ru':
             await bot.send_message(message.chat.id, t.translate(language_dict[user_id], 'unknown'))

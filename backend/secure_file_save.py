@@ -12,7 +12,10 @@ def save_file(path, user_id, value, delete=False):
         try:
             file_json = of.open_file(path)
             if delete:
-                del file_json[user_id]
+                try:
+                    del file_json[user_id]
+                except KeyError:
+                    logging.error({'type': 'user_is_not_in_dict', 'data': {'dict': file_json, 'user_id': user_id}})
             else:
                 file_json[user_id] = value
             np.save(path, file_json)
