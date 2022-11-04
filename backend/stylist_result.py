@@ -1,22 +1,22 @@
 import gc
+import img_functions as imf
 import torch
 from stylist_class import Stylist
 import stylist_params as sp
-import img_functions as imf
 
 
 def get_result(
-    user,
-    vgg,
-    imgs,
-    size=(
-        1024, 
-        1024),
-    difference=0,
-    chanels = [
-              0,
-              1,
-              2],
+        user,
+        vgg,
+        imgs,
+        size=(
+            1024, 
+            1024),
+        difference=0,
+        chanels = [
+                0,
+                1,
+                2],
         epochs = 5):
     to_mean_tensor, normalize_image = imf.get_img_functions(size, chanels)
     style_image, content_image, opt_img = imf.get_img_tensors(
@@ -32,7 +32,8 @@ def get_result(
         targets,
         normalize_image,
         vgg,
-        user)
+        user,
+        size)
     result_list, good_end = model.fit()
     model = None
     gc.collect()
