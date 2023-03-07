@@ -1,7 +1,6 @@
 from datetime import datetime
 import gc
 import logging
-import numpy as np
 import os
 import path_editor
 from PIL import Image
@@ -61,7 +60,7 @@ else:
                 diff = -1
                 width = int(width / 2)
                 height = int(height / 2)
- 
+
             else:
                 if width > height:
                     diff = width - 1024

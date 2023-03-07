@@ -8,20 +8,20 @@ def get_img_functions(size, chanels):
                                          transforms.ToTensor(),
                                          transforms.Lambda(lambda x: x[torch.LongTensor(chanels)]),
                                          transforms.Normalize(mean=[
-                                                                    0.40760392, 
-                                                                    0.45795686, 
+                                                                    0.40760392,
+                                                                    0.45795686,
                                                                     0.48501961],
                                                               std=[
-                                                                    1, 
-                                                                    1, 
+                                                                    1,
+                                                                    1,
                                                                     1]),
                                          transforms.Lambda(lambda x: x.mul_(255)),
                                          ])
 
     to_unmean_tensor = transforms.Compose([transforms.Lambda(lambda x: x.div(255)),
                                            transforms.Normalize(mean=[
-                                                                    -0.40760392, 
-                                                                    -0.45795686, 
+                                                                    -0.40760392,
+                                                                    -0.45795686,
                                                                     -0.48501961],
                                                                 std=[
                                                                     1,
@@ -29,11 +29,11 @@ def get_img_functions(size, chanels):
                                                                     1]),
                                            transforms.Lambda(lambda x: x[torch.LongTensor(chanels)]),
                                            ])
-    def normalize_image(t): 
+    def normalize_image(t):
         return transforms.Compose([transforms.ToPILImage()])(
             torch.clamp(
-                to_unmean_tensor(t), 
-                min=0, 
+                to_unmean_tensor(t),
+                min=0,
                 max=1
             )
         )

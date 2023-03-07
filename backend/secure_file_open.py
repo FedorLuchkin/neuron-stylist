@@ -14,5 +14,5 @@ def open_file(path):
         except OSError:
             file_open_status = 0
     if attempts_number > 1:
-        logging.warning({'type': 'open_file', 'data': {'file': path, 'attempts_number': attempts_number}})        
+        logging.warning({'type': 'open_file', 'data': {'file': path, 'attempts_number': attempts_number}})
     return file_json
