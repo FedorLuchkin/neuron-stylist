@@ -11,4 +11,4 @@
 > - [Video](https://youtube.com/playlist?list=PL5MVMi3Spz2t7aC1cP4FLyjTB6vfOkUCv)
 
 > - ## Improving Neuron Stylist results after quality boost (2022-11-03)
-> - <Img src="https://sun9-north.userapi.com/sun9-81/s/v1/ig2/ZqK795C-QUYcA2-epHbhJTUyVcTAai4mffCZj0QrE0JvIzpH_4RF6h6u42sSK3rVy5Qq0PieL1uoBsmhnxIjRfHc.jpg?size=1280x640&quality=95&type=album">
+> - <Img src="https://sun9-east.userapi.com/sun9-34/s/v1/ig2/ZqK795C-QUYcA2-epHbhJTUyVcTAai4mffCZj0QrE0JvIzpH_4RF6h6u42sSK3rVy5Qq0PieL1uoBsmhnxIjRfHc.jpg?size=1280x640&quality=95&type=album">
