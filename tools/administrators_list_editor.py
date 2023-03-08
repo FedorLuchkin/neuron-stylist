@@ -4,7 +4,7 @@ import os
 import path_editor
 from backend import secure_file_open as of
 
-path = 'backend/admins.npy'
+path = 'frontend/admins.npy'
 if os.path.exists(path):
         file_json = of.open_file(path)
 else:        
@@ -18,17 +18,16 @@ while mode != 4:
 2 - remove administrators
 3 - show administrators
 4 - exit""")
-    while mode < 0:
+    while mode < 1:
         try:
             mode = int(
                     input()
                     )
-            if mode > 4 or mode < 0:
+            if mode > 4 or mode < 1:
                 mode = -1
+                print("Incorrect data entered, try again")
         except ValueError:
             mode = -1
-            
-        if mode < 0:
             print("Incorrect data entered, try again")
 
     if mode in [1, 2]:

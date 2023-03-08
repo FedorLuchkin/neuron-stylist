@@ -26,7 +26,7 @@ else:
     queue_path = 'backend/queue.npy'
     language_path = 'frontend/translations/users_language.npy'
     fit_progress_path = 'backend/fit_progress.npy'
-    admins_path = 'backend/admins.npy'
+    admins_path = 'frontend/admins.npy'
 
     if os.path.exists(user_status_path):
         status_dict = of.open_file(user_status_path)
