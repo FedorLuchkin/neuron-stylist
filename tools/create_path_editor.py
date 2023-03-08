@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 import os
+import platform
 import sys
 
 path = os.getcwd().split('neuron-stylist')[0] + 'neuron-stylist'
@@ -12,13 +13,22 @@ os.chdir(r"{path}")
 sys.path.append(r"{path}")
 '''
 
-filenames = [
-    'path_editor.py',
-    path + '\\frontend\\path_editor.py',
-    path + '\\backend\\path_editor.py',
-    path + '\\frontend\\translations\\path_editor.py',
-    path + '\\tools\\path_editor.py',
-]
+if platform.system() == "Windows":
+    filenames = [
+        'path_editor.py',
+        path + '\\frontend\\path_editor.py',
+        path + '\\backend\\path_editor.py',
+        path + '\\frontend\\translations\\path_editor.py',
+        path + '\\tools\\path_editor.py',
+    ]
+else:
+    filenames = [
+        path + '/path_editor.py',
+        path + '/frontend/path_editor.py',
+        path + '/backend/path_editor.py',
+        path + '/frontend/translations/path_editor.py',
+        path + '/tools/path_editor.py',
+    ]
 
 for filename in filenames:
     with open(filename, 'w') as file:
