@@ -7,15 +7,15 @@ from backend import secure_file_open as of
 path = 'frontend/admins.npy'
 if os.path.exists(path):
         file_json = of.open_file(path)
-else:        
+else:
     file_json = dict()
     np.save(path, file_json)
-    
+
 mode = -1
 while mode != 4:
-    print("""select action 1-2:
-1 - add administrators
-2 - remove administrators
+    print("""select action 1-4:
+1 - add administrator
+2 - remove administrator
 3 - show administrators
 4 - exit""")
     while mode < 1:
@@ -31,7 +31,7 @@ while mode != 4:
             print("Incorrect data entered, try again")
 
     if mode in [1, 2]:
-        admin_name = ''     
+        admin_name = ''
         admin_id = -1
         
         while admin_id < 0:
