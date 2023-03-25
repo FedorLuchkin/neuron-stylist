@@ -18,6 +18,13 @@ def get_img_functions(size, chanels):
                                          transforms.Lambda(lambda x: x.mul_(255)),
                                          ])
 
+    if chanels == [1, 2, 0]:
+        reverse_chanels = [2, 0, 1]
+    elif chanels == [2, 0, 1]:
+        reverse_chanels = [1, 2, 0]
+    else:
+        reverse_chanels = chanels
+
     to_unmean_tensor = transforms.Compose([transforms.Lambda(lambda x: x.div(255)),
                                            transforms.Normalize(mean=[
                                                                     -0.40760392,
@@ -27,7 +34,7 @@ def get_img_functions(size, chanels):
                                                                     1,
                                                                     1,
                                                                     1]),
-                                           transforms.Lambda(lambda x: x[torch.LongTensor(chanels)]),
+                                           transforms.Lambda(lambda x: x[torch.LongTensor(reverse_chanels)]),
                                            ])
     def normalize_image(t):
         return transforms.Compose([transforms.ToPILImage()])(

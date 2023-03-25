@@ -24,7 +24,7 @@ class Stylist():
         self.vgg = vgg
         self.user_id = user_id
         self.img_size = img_size
- 
+
     def step_opt(self):
         self.opt.zero_grad()
         out_layers = self.vgg(self.img, self.loss_layers)
@@ -53,12 +53,12 @@ class Stylist():
                 result_list.append(self.normalize_image(self.img[0]))
 
             # styling mode changing
-            if i == 5:
+            if i == 10:
                 result_list.append(self.normalize_image(self.img[0]))
                 style_path = 'telegram_users/' + self.user_id + '/style/style.png'
                 style_img = Image.open(style_path)
                 content_img = self.normalize_image(self.img[0])
-                chanels = [0, 2, 1]
+                chanels = [2, 1, 0]
                 to_mean_tensor, self.normalize_image = imf.get_img_functions(self.img_size, chanels)
                 style_image, content_image, self.img = imf.get_img_tensors([style_img, content_img], to_mean_tensor)
                 self.opt = optim.LBFGS([self.img])

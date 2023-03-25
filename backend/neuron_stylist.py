@@ -73,15 +73,14 @@ else:
         epoch_number = 60
 
         start_time = datetime.now()
-        # chanels = [2,1,0] #[0,2,1]
         result, good_end = sr.get_result(
             vgg=vgg_model, 
             imgs=images, 
             size=SIZE_IMAGE, 
             difference=diff, 
             chanels=[
-                    0,
                     1,
+                    0,
                     2], 
             epochs=epoch_number, 
             user=user_id)
