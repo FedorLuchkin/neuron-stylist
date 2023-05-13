@@ -58,7 +58,7 @@ class Stylist():
                 style_path = 'telegram_users/' + self.user_id + '/style/style.png'
                 style_img = Image.open(style_path)
                 content_img = self.normalize_image(self.img[0])
-                chanels = [2, 1, 0]
+                chanels = [1, 0, 2]
                 to_mean_tensor, self.normalize_image = imf.get_img_functions(self.img_size, chanels)
                 style_image, content_image, self.img = imf.get_img_tensors([style_img, content_img], to_mean_tensor)
                 self.opt = optim.LBFGS([self.img])

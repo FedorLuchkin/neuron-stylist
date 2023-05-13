@@ -14,9 +14,9 @@ def get_result(
             1024),
         difference=0,
         chanels = [
+                2,
                 1,
-                0,
-                2],
+                0],
         epochs = 5):
     to_mean_tensor, normalize_image = imf.get_img_functions(size, chanels)
     style_image, content_image, opt_img = imf.get_img_tensors(

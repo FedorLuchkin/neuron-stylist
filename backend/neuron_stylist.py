@@ -10,7 +10,7 @@ import stylist_result as sr
 import sys
 import time
 import torch
-from vgg import VGG16
+from vgg import VGG19
 
 queue_path = 'backend/queue.npy'
 logging.basicConfig(filename='sessions.log', encoding='utf-8', level=logging.DEBUG)
@@ -37,7 +37,7 @@ else:
     elif queue_dict[user_id] == 1:
         logging.info({'type': 'user_status', 'data': {'user_id': user_id, 'status': 'started', 'time': str(datetime.now())}})
 
-        vgg_model = VGG16()
+        vgg_model = VGG19()
         vgg_model.load_state_dict(torch.load('backend/vgg_conv.pth'))
 
         for param in vgg_model.parameters():
@@ -79,9 +79,9 @@ else:
             size=SIZE_IMAGE, 
             difference=diff, 
             chanels=[
+                    2,
                     1,
-                    0,
-                    2], 
+                    0], 
             epochs=epoch_number, 
             user=user_id)
         if good_end:
