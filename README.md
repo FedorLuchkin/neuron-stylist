@@ -2,9 +2,10 @@
 <h2 align = 'center'><Img src="https://sun9-west.userapi.com/sun9-68/s/v1/if2/VIGRO1g6nptpJDg0e578CkSxz0OUF9CbbqowkorNf8TxKhaRf4DS_2bo5olVaE5tqpIEE8yPKpmKHg2wAIhKUJKa.jpg?size=2560x640&quality=95&type=album"></h2>
 
 ## **For run**
-> 1. Clone repository
-> 2. Open repository directory in console
-> 3. Run: ```python run.py <Token>```
+> 1. Install <ins>python 3.9.18</ins>
+> 2. Clone repository
+> 3. Open repository directory in console
+> 4. Run: ```python run.py <Token>```
 
 ## Examples of stylist work
 > - [Images](https://disk.yandex.ru/d/--ASEOmS5QfUuA)
