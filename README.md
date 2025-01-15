@@ -5,7 +5,8 @@
 > 1. Install <ins>python 3.9.18</ins>
 > 2. Clone repository
 > 3. Open repository directory in console
-> 4. Run: ```python run.py <Token>```
+> 4. Run: ```pip install -r requirements.txt```
+> 5. Run: ```python run.py <Token>```
 
 ## Examples of stylist work
 > - [Images](https://disk.yandex.ru/d/--ASEOmS5QfUuA)
